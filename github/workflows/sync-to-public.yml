@@ -1,0 +1,47 @@
+name: Receive Sync from Private Repo
+
+on:
+  repository_dispatch:
+    types: [sync-release]
+
+permissions:
+  contents: write
+
+jobs:
+  update-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.SYNC_PAT }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.client_payload.tag }}
+          name: ${{ github.event.client_payload.release_name }}
+          body: |
+            Synced from CommitteePro (Private)
+            
+            ${{ github.event.client_payload.release_body }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.SYNC_PAT }}
+
+      - name: Update README
+        run: |
+          cat >> README.md <<EOF
+
+          ---
+          **Latest Release:** [${{ github.event.client_payload.tag }}](${{ github.event.client_payload.release_url }})
+          EOF
+          
+      - name: Commit README update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --cached --quiet || git commit -m "Auto-sync release ${{ github.event.client_payload.tag }} from CommitteePro"
+          git push
