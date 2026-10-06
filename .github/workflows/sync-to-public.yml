@@ -1,0 +1,174 @@
+name: Receive Sync from Private Repo
+
+on:
+  repository_dispatch:
+    types: [sync-release]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-release-${{ github.event.client_payload.tag }}
+  cancel-in-progress: false
+
+jobs:
+  update-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The APK itself lives on the private release, so SYNC_PAT (which has
+      # access to aleemshahad/CommitteePro) is what makes the public mirror
+      # downloadable rather than a link back to a repository nobody can open.
+      - name: Download the APK from the private release
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_PAT }}
+          TAG: ${{ github.event.client_payload.tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          gh release download "$TAG" \
+            --repo aleemshahad/CommitteePro \
+            --pattern 'app-debug.apk' \
+            --dir dist
+          test -s dist/app-debug.apk
+          ls -l dist
+
+      - name: Publish the mirrored release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.client_payload.tag }}
+          RELEASE_NAME: ${{ github.event.client_payload.release_name }}
+          RELEASE_BODY: ${{ github.event.client_payload.release_body }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$TAG" dist/app-debug.apk \
+              --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            {
+              echo "CommitteePro ${TAG} — Android APK"
+              echo
+              echo "Download \`app-debug.apk\` from the assets below, open it, and"
+              echo "allow installs from this source when Android asks."
+              if [ -n "$RELEASE_BODY" ]; then
+                echo
+                printf '%s\n' "$RELEASE_BODY"
+              fi
+            } > /tmp/release-body.md
+            gh release create "$TAG" dist/app-debug.apk \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "${RELEASE_NAME:-$TAG}" \
+              --notes-file /tmp/release-body.md \
+              --latest
+          fi
+
+      - name: Point the README at the new release
+        env:
+          TAG: ${{ github.event.client_payload.tag }}
+        run: |
+          python3 - <<'PY'
+          import datetime
+          import os
+          import pathlib
+          import re
+
+          tag = os.environ["TAG"].strip()
+          if not tag.startswith("v"):
+              tag = "v" + tag
+
+          apk = pathlib.Path("dist/app-debug.apk")
+          download = (
+              "https://github.com/aleemshahad/Committee-Pro/releases/download/"
+              + tag
+              + "/app-debug.apk"
+          )
+          latest = "https://github.com/aleemshahad/Committee-Pro/releases/latest"
+          size_mb = "{:.1f}".format(apk.stat().st_size / (1024 * 1024))
+
+          path = pathlib.Path("README.md")
+          text = path.read_text(encoding="utf-8")
+          original = text
+
+          text, count = re.subn(
+              r"\[!\[Latest Release\]\(https://img\.shields\.io/badge/"
+              r"Latest%20Release-v[^)]*\)\]\([^)]*\)",
+              "[![Latest Release](https://img.shields.io/badge/"
+              "Latest%20Release-{}-brightgreen?style=flat-square)]({})".format(tag, latest),
+              text,
+              count=1,
+          )
+          print("release badge rewritten:", count)
+
+          text, count = re.subn(
+              r"\*\*\[⬇ Download CommitteePro [^\]]*\]"
+              r"\(https://github\.com/aleemshahad/Committee-Pro/releases/download/"
+              r"v[0-9.]+/app-debug\.apk\)\*\*",
+              "**[⬇ Download CommitteePro {} — `app-debug.apk` ({} MB)]({})**".format(
+                  tag, size_mb, download
+              ),
+              text,
+              count=1,
+          )
+          print("download button rewritten:", count)
+
+          text = re.sub(
+              r"https://github\.com/aleemshahad/Committee-Pro/releases/download/"
+              r"v[0-9.]+/app-debug\.apk",
+              lambda _: download,
+              text,
+          )
+
+          text, count = re.subn(
+              r"\| Latest version \| \*\*[^*]+\*\* \|",
+              "| Latest version | **{}** |".format(tag),
+              text,
+              count=1,
+          )
+          print("version row rewritten:", count)
+
+          text, count = re.subn(
+              r"\| Size \| [0-9.]+ MB \|",
+              "| Size | {} MB |".format(size_mb),
+              text,
+              count=1,
+          )
+          print("size row rewritten:", count)
+
+          text, count = re.subn(
+              r"Last updated: [A-Z][a-z]+ \d{1,2}, \d{4}",
+              "Last updated: {}".format(datetime.date.today().strftime("%B %-d, %Y")),
+              text,
+              count=1,
+          )
+          print("last-updated rewritten:", count)
+
+          text, count = re.subn(
+              r"Latest version: \*\*[^*]+\*\*",
+              "Latest version: **{}**".format(tag),
+              text,
+          )
+          print("footer version rewritten:", count)
+
+          if text != original:
+              path.write_text(text, encoding="utf-8")
+              print("README updated to", tag)
+          else:
+              print("README already at", tag)
+          PY
+
+      - name: Commit the README update
+        env:
+          TAG: ${{ github.event.client_payload.tag }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "README unchanged"
+          else
+            git commit -m "Release ${TAG}: publish APK and update download link"
+            git push
+          fi

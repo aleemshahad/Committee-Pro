@@ -1,8 +1,31 @@
 # 📱 CommitteePro — Modern Committee & Savings Group Manager
 
-[![Latest Release](https://img.shields.io/badge/Latest%20Release-v2.5.1-brightgreen?style=flat-square)](https://github.com/aleemshahad/CommitteePro)
-[![Platform](https://img.shields.io/badge/Platform-Web%20Application-blue?style=flat-square)](https://github.com/aleemshahad/CommitteePro)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![Latest Release](https://img.shields.io/badge/Latest%20Release-v2.5.2-brightgreen?style=flat-square)](https://github.com/aleemshahad/Committee-Pro/releases/latest)
+[![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Android-blue?style=flat-square)](https://github.com/aleemshahad/Committee-Pro)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](https://github.com/aleemshahad/Committee-Pro/blob/main/README.md#-license)
+
+---
+
+## 📲 Download the Android App
+
+**[⬇ Download CommitteePro v2.5.2 — `app-debug.apk` (3.8 MB)](https://github.com/aleemshahad/Committee-Pro/releases/download/v2.5.2/app-debug.apk)**
+
+| | |
+|---|---|
+| Latest version | **v2.5.2** |
+| File name | `app-debug.apk` |
+| Size | 3.8 MB |
+| Android | 7.0 or newer |
+| All versions | [Releases page](https://github.com/aleemshahad/Committee-Pro/releases) |
+
+1. Tap the link above and wait for the download to finish.
+2. Open `app-debug.apk`. Android asks permission to install apps from this
+   source — allow it, then tap **Install**.
+3. Open CommitteePro and sign up with your **email**, a **password** and your
+   **phone number**.
+
+> The APK is built from the same source as the web app. It is not published on
+> the Play Store, so Android will warn you once before installing it.
 
 ---
 
@@ -60,6 +83,16 @@ Manage committees with complete administrative control:
 ---
 
 ## 🚀 Getting Started
+
+### **Quick Start (Android App)**
+
+1. **Download the APK**
+   - Get it from the [Download section](#-download-the-android-app) above
+   - Install it and open CommitteePro
+
+2. **Create Your Account**
+   - Sign up with your email, a password and your phone number
+   - Choose your role: Admin or Member
 
 ### **Quick Start (Web Application)**
 
@@ -222,6 +255,6 @@ CommitteePro is licensed under the **MIT License**.
 
 **Start Managing Your Committee Transparently Today! 🎉**
 
-For access to CommitteePro, please visit the official website.
+To install the app, use the [download link above](#-download-the-android-app).
 
-Last updated: October 5, 2026 | Latest version: **v2.5.1**
+Last updated: October 6, 2026 | Latest version: **v2.5.2**
