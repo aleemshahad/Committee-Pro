@@ -28,10 +28,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-          gh release download "$TAG" \
-            --repo aleemshahad/CommitteePro \
-            --pattern 'app-debug.apk' \
-            --dir dist
+          # `release: created` fires as soon as the release object exists, which can be
+          # before the builder has finished uploading the APK, so wait for the asset.
+          for attempt in $(seq 1 30); do
+            if gh release download "$TAG" \
+                --repo aleemshahad/CommitteePro \
+                --pattern 'app-debug.apk' \
+                --dir dist 2>/tmp/download.log; then
+              echo "APK downloaded on attempt ${attempt}"
+              break
+            fi
+            if [ "$attempt" -eq 30 ]; then
+              echo "::error::app-debug.apk never appeared on the ${TAG} release"
+              cat /tmp/download.log
+              exit 1
+            fi
+            echo "attempt ${attempt} failed, retrying in 20s"
+            sleep 20
+          done
           test -s dist/app-debug.apk
           ls -l dist
 
