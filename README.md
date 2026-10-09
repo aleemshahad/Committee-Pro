@@ -1,6 +1,6 @@
 # 📱 CommitteePro — Modern Committee & Savings Group Manager
 
-[![Latest Release](https://img.shields.io/badge/Latest%20Release-v2.5.2-brightgreen?style=flat-square)](https://github.com/aleemshahad/Committee-Pro/releases/latest)
+[![Latest Release](https://img.shields.io/badge/Latest%20Release-v2.5.3-brightgreen?style=flat-square)](https://github.com/aleemshahad/Committee-Pro/releases/latest)
 [![Platform](https://img.shields.io/badge/Platform-Web%20%7C%20Android-blue?style=flat-square)](https://github.com/aleemshahad/Committee-Pro)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](https://github.com/aleemshahad/Committee-Pro/blob/main/README.md#-license)
 
@@ -8,11 +8,11 @@
 
 ## 📲 Download the Android App
 
-**[⬇ Download CommitteePro v2.5.2 — `app-debug.apk` (3.8 MB)](https://github.com/aleemshahad/Committee-Pro/releases/download/v2.5.2/app-debug.apk)**
+**[⬇ Download CommitteePro v2.5.3 — `app-debug.apk` (3.8 MB)](https://github.com/aleemshahad/Committee-Pro/releases/download/v2.5.3/app-debug.apk)**
 
 | | |
 |---|---|
-| Latest version | **v2.5.2** |
+| Latest version | **v2.5.3** |
 | File name | `app-debug.apk` |
 | Size | 3.8 MB |
 | Android | 7.0 or newer |
@@ -257,4 +257,4 @@ CommitteePro is licensed under the **MIT License**.
 
 To install the app, use the [download link above](#-download-the-android-app).
 
-Last updated: October 6, 2026 | Latest version: **v2.5.2**
+Last updated: October 9, 2026 | Latest version: **v2.5.3**
